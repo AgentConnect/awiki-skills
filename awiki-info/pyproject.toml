@@ -1,0 +1,15 @@
+[project]
+name = "awiki-info"
+version = "1.0.0"
+description = "AI 资讯聚合 Skill - 使用 MCP 协议连接远程服务"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "httpx[socks]",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
