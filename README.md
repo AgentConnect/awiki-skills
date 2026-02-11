@@ -27,7 +27,15 @@ AI 资讯聚合 Claude Code Skills 集合，通过 MCP 协议连接远程服务�
 
 ### 安装步骤
 
-#### 方式一：从 GitHub 克隆
+#### 方式一：让 AI Agent 自动安装（推荐）
+
+在 Claude Code 中直接说：
+
+> 请读取 https://github.com/AgentConnect/awiki-skills/blob/main/INSTALL.md ，按照文档安装这个 skill。
+
+Agent 会自动完成下载、解压、依赖安装和验证，无需手动操作。
+
+#### 方式二：从 GitHub 克隆
 
 ```bash
 # 克隆仓库
@@ -40,7 +48,7 @@ cd awiki-skills/awiki-info
 uv sync
 ```
 
-#### 方式二：下载 Release
+#### 方式三：下载 Release
 
 ```bash
 # 从 GitHub Releases 下载最新版本
@@ -54,7 +62,7 @@ cd ~/.claude/skills/awiki-info
 uv sync
 ```
 
-#### 方式三：使用安装脚本
+#### 方式四：使用安装脚本
 
 ```bash
 cd awiki-info
