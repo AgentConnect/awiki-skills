@@ -11,18 +11,27 @@ allowed-tools: Bash(python:*), Bash(uv:*), Read
 
 通过 MCP 协议连接远程服务，获取 AI 领域的最新资讯和活动信息。
 
+## 路径约定
+
+**SKILL_DIR** = 本文件（SKILL.md）所在的目录。所有命令均需先 `cd` 到 SKILL_DIR 再执行。
+
+Agent 可通过以下方式确定 SKILL_DIR：
+- 本文件的路径去掉末尾的 `/SKILL.md` 即为 SKILL_DIR
+- 例如：若本文件路径为 `~/.claude/skills/awiki-info/SKILL.md`，则 `SKILL_DIR=~/.claude/skills/awiki-info`
+
 ## 环境要求
 
-首次使用前需安装依赖：
+首次使用前需在 SKILL_DIR 下安装依赖：
 
 ```bash
-cd /Users/cs/work/agents/awiki-skills/awiki-info && uv sync
+# 先 cd 到 SKILL_DIR（本文件所在目录），然后安装依赖
+cd <SKILL_DIR> && uv sync
 ```
 
 或使用安装脚本：
 
 ```bash
-cd /Users/cs/work/agents/awiki-skills/awiki-info && python install_dependencies.py
+cd <SKILL_DIR> && python install_dependencies.py
 ```
 
 ## 可用功能
@@ -31,14 +40,14 @@ cd /Users/cs/work/agents/awiki-skills/awiki-info && python install_dependencies.
 
 获取指定日期或最新的 AI 新闻日报汇总。
 
-**使用方法**：
+**使用方法**（在 SKILL_DIR 下执行）：
 
 ```bash
 # 获取最新日报
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/get_daily_summary.py
+cd <SKILL_DIR> && uv run python scripts/get_daily_summary.py
 
 # 获取指定日期的日报
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/get_daily_summary.py --date 2026-01-27
+cd <SKILL_DIR> && uv run python scripts/get_daily_summary.py --date 2026-01-27
 ```
 
 **返回内容**：
@@ -51,20 +60,20 @@ python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/get_daily_summary.p
 
 搜索 AI 相关的活动、会议、研讨会等事件。
 
-**使用方法**：
+**使用方法**（在 SKILL_DIR 下执行）：
 
 ```bash
 # 关键词搜索
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/search_activities.py --keyword "AI Workshop"
+cd <SKILL_DIR> && uv run python scripts/search_activities.py --keyword "AI Workshop"
 
 # 按状态过滤（draft/published/cancelled）
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/search_activities.py --keyword "机器学习" --status published
+cd <SKILL_DIR> && uv run python scripts/search_activities.py --keyword "机器学习" --status published
 
 # 按时间范围筛选（未来30天内的活动）
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/search_activities.py --future-days 30
+cd <SKILL_DIR> && uv run python scripts/search_activities.py --future-days 30
 
 # 完整参数示例
-python /Users/cs/work/agents/awiki-skills/awiki-info/scripts/search_activities.py \
+cd <SKILL_DIR> && uv run python scripts/search_activities.py \
   --keyword "LLM" \
   --status published \
   --hits 20 \
@@ -101,16 +110,16 @@ python scripts/get_daily_summary.py --server https://your-server/mcp
 ## 典型对话示例
 
 **用户**: "帮我看看今天有什么 AI 新闻"
-→ 执行 `python scripts/get_daily_summary.py`，返回格式化的日报内容
+→ cd 到 SKILL_DIR，执行 `uv run python scripts/get_daily_summary.py`，返回格式化的日报内容
 
 **用户**: "获取 2026-01-20 的 AI 资讯"
-→ 执行 `python scripts/get_daily_summary.py --date 2026-01-20`
+→ cd 到 SKILL_DIR，执行 `uv run python scripts/get_daily_summary.py --date 2026-01-20`
 
 **用户**: "搜索一下最近有什么 AI 相关的活动"
-→ 执行 `python scripts/search_activities.py --future-days 30 --status published`
+→ cd 到 SKILL_DIR，执行 `uv run python scripts/search_activities.py --future-days 30 --status published`
 
 **用户**: "查找关于大模型的研讨会"
-→ 执行 `python scripts/search_activities.py --keyword "大模型" --status published`
+→ cd 到 SKILL_DIR，执行 `uv run python scripts/search_activities.py --keyword "大模型" --status published`
 
 ## 错误处理
 

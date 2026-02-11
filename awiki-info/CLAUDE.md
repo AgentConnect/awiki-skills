@@ -14,7 +14,7 @@
 
 ## 成员清单
 
-**SKILL.md**: Skill 配置文档（触发场景、使用说明、工具权限）
+**SKILL.md**: Skill 配置文档（触发场景、使用说明、工具权限、路径约定——使用 SKILL_DIR 相对路径，无硬编码）
 
 **pyproject.toml**: 项目依赖配置（uv 包管理、Python 3.10+）
 

@@ -68,31 +68,32 @@ def create_package(version: str) -> Optional[Path]:
     package_name = f"awiki-info-v{version}.zip"
     package_path = dist_dir / package_name
 
-    # 要打包的文件
+    # 要打包的文件（源路径 → 包内路径）
     files_to_package = [
-        "awiki-info/SKILL.md",
-        "awiki-info/pyproject.toml",
-        "awiki-info/install_dependencies.py",
-        "awiki-info/uv.lock",
-        "awiki-info/scripts/__init__.py",
-        "awiki-info/scripts/mcp_client.py",
-        "awiki-info/scripts/get_daily_summary.py",
-        "awiki-info/scripts/search_activities.py",
-        "awiki-info/references/mcp-api.md",
-        "README.md",
-        "LICENSE",
+        ("awiki-info/SKILL.md", "awiki-info/SKILL.md"),
+        ("awiki-info/pyproject.toml", "awiki-info/pyproject.toml"),
+        ("awiki-info/install_dependencies.py", "awiki-info/install_dependencies.py"),
+        ("awiki-info/uv.lock", "awiki-info/uv.lock"),
+        ("awiki-info/scripts/__init__.py", "awiki-info/scripts/__init__.py"),
+        ("awiki-info/scripts/mcp_client.py", "awiki-info/scripts/mcp_client.py"),
+        ("awiki-info/scripts/get_daily_summary.py", "awiki-info/scripts/get_daily_summary.py"),
+        ("awiki-info/scripts/search_activities.py", "awiki-info/scripts/search_activities.py"),
+        ("awiki-info/references/mcp-api.md", "awiki-info/references/mcp-api.md"),
+        ("README.md", "awiki-info/README.md"),
+        ("LICENSE", "awiki-info/LICENSE"),
+        ("INSTALL.md", "awiki-info/INSTALL.md"),
     ]
 
     # 创建 zip 文件
     root = Path(__file__).parent
     with zipfile.ZipFile(package_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for file_path in files_to_package:
-            full_path = root / file_path
+        for src_path, arc_path in files_to_package:
+            full_path = root / src_path
             if full_path.exists():
-                zf.write(full_path, file_path)
-                print(f"  ✓ {file_path}")
+                zf.write(full_path, arc_path)
+                print(f"  ✓ {arc_path}")
             else:
-                print(f"  ⚠️  跳过不存在的文件: {file_path}")
+                print(f"  ⚠️  跳过不存在的文件: {src_path}")
 
     print(f"\n✅ 打包完成: {package_path}")
     return package_path

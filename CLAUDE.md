@@ -86,13 +86,14 @@
 - **📰 AI 日报摘要**：获取指定日期或最新的 AI 领域新闻日报汇总
 - **🔍 活动搜索**：搜索 AI 相关的活动、会议、研讨会等事件
 
-> **完整功能说明**: [README.md](README.md) | [awiki-info/SKILL.md](awiki-info/SKILL.md)
+> **完整功能说明**: [README.md](README.md) | [awiki-info/SKILL.md](awiki-info/SKILL.md) | [INSTALL.md](INSTALL.md)
 
 ### 核心模块
 
 | 模块 | 路径 | 职责 |
 |------|------|------|
 | **awiki-info** | [awiki-info/](awiki-info/) | AI 资讯聚合 Skill（MCP 客户端、日报获取、活动搜索） |
+| **INSTALL.md** | [INSTALL.md](INSTALL.md) | 面向 AI Agent 的安装指南（自动化安装流程） |
 
 ## 技术栈
 
