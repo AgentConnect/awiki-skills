@@ -15,7 +15,7 @@ AI 资讯聚合 Claude Code Skills 集合，通过 MCP 协议连接远程服务�
 - 🔍 **活动搜索**：搜索 AI 相关的活动、会议、研讨会等
 - 🔌 **MCP 协议**：基于 MCP Python SDK 实现，支持 streamable-http 传输
 - 🚀 **即插即用**：完整的依赖管理和安装脚本
-- 🌐 **远程服务**：默认连接 `https://agent-connect.cn/awiki/mcp`
+- 🌐 **远程服务**：默认连接 `https://agent-connect.cn/protocol/mcp`
 
 ## 快速开始
 
@@ -145,7 +145,7 @@ awiki-skills/
 
 ### MCP 服务器配置
 
-默认 MCP 服务器地址：`https://agent-connect.cn/awiki/mcp`
+默认 MCP 服务器地址：`https://agent-connect.cn/protocol/mcp`
 
 可通过以下方式自定义：
 

@@ -141,6 +141,6 @@ mv ~/.claude/skills/awiki-info.bak.<时间戳> ~/.claude/skills/awiki-info
 | `uv: command not found` | 未安装 uv | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | `python3: No module named mcp` | 依赖未安装 | `cd ~/.claude/skills/awiki-info && uv sync` |
 | `gh: command not found` | 未安装 gh CLI | 改用方案 B 或 C 下载 |
-| `Connection error` | 网络问题或 MCP 服务不可达 | 检查网络；尝试 `curl https://agent-connect.cn/awiki/mcp` |
+| `Connection error` | 网络问题或 MCP 服务不可达 | 检查网络；尝试 `curl https://agent-connect.cn/protocol/mcp` |
 | `zip 解压后目录为空` | 下载不完整 | 重新下载，确认文件大小 > 0 |
 | `Permission denied` | 目录权限不足 | `chmod -R u+rw ~/.claude/skills/awiki-info` |

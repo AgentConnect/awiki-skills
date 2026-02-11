@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--server",
         type=str,
-        help="MCP 服务器地址，默认 https://agent-connect.cn/awiki/mcp",
+        help="MCP 服务器地址，默认 https://agent-connect.cn/protocol/mcp",
     )
 
     args = parser.parse_args()

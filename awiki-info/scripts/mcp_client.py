@@ -11,7 +11,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
 # 默认 MCP 服务器地址
-DEFAULT_MCP_SERVER_URL = "https://agent-connect.cn/awiki/mcp"
+DEFAULT_MCP_SERVER_URL = "https://agent-connect.cn/protocol/mcp"
 
 
 class MCPClient:

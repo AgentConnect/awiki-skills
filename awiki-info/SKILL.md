@@ -97,7 +97,7 @@ cd <SKILL_DIR> && uv run python scripts/search_activities.py \
 
 ## MCP 服务器配置
 
-默认连接 `https://agent-connect.cn/awiki/mcp`，可通过环境变量或命令行参数指定：
+默认连接 `https://agent-connect.cn/protocol/mcp`，可通过环境变量或命令行参数指定：
 
 ```bash
 # 环境变量方式
