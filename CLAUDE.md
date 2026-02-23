@@ -80,19 +80,24 @@
 
 ## 项目概览
 
-**awiki-skills** 是一个专为 Claude Code 设计的 AI 资讯聚合技能包，核心使命是**通过 MCP (Model Context Protocol) 协议连接远程服务，为用户实时聚合和提供 AI 领域的最新资讯和活动信息**。
+**awiki-skills** 是一个专为 Claude Code 设计的 AI 技能包集合，包含 AI 资讯聚合和 DID 去中心化身份交互两大技能。
 
 主要功能包括：
-- **📰 AI 日报摘要**：获取指定日期或最新的 AI 领域新闻日报汇总
-- **🔍 活动搜索**：搜索 AI 相关的活动、会议、研讨会等事件
+- **AI 日报摘要**：获取指定日期或最新的 AI 领域新闻日报汇总
+- **活动搜索**：搜索 AI 相关的活动、会议、研讨会等事件
+- **DID 身份管理**：创建和管理去中心化身份（DID），支持跨会话身份持久化
+- **DID 消息通信**：点对点消息收发、收件箱管理
+- **DID 社交关系**：关注/取关、群组管理
+- **E2EE 加密通信**：端到端加密消息收发
 
-> **完整功能说明**: [README.md](README.md) | [awiki-info/SKILL.md](awiki-info/SKILL.md) | [INSTALL.md](INSTALL.md)
+> **完整功能说明**: [README.md](README.md) | [awiki-info/SKILL.md](awiki-info/SKILL.md) | [awiki-did/SKILL.md](awiki-did/SKILL.md) | [INSTALL.md](INSTALL.md)
 
 ### 核心模块
 
 | 模块 | 路径 | 职责 |
 |------|------|------|
 | **awiki-info** | [awiki-info/](awiki-info/) | AI 资讯聚合 Skill（MCP 客户端、日报获取、活动搜索） |
+| **awiki-did** | [awiki-did/](awiki-did/) | DID 去中心化身份 Skill（身份管理、消息通信、社交关系、E2EE 加密） |
 | **INSTALL.md** | [INSTALL.md](INSTALL.md) | 面向 AI Agent 的安装指南（自动化安装流程） |
 
 ## 技术栈
@@ -100,9 +105,10 @@
 - **Python**: 3.10+
 - **包管理**: uv
 - **MCP 框架**: MCP SDK 1.0+ (官方 Model Context Protocol 实现)
+- **DID/E2EE**: ANP >= 0.5.3 (DID WBA 认证、E2EE 加密)
 - **网络传输**: streamable-http (HTTP streaming 协议)
 - **异步支持**: asyncio
-- **HTTP 客户端**: httpx[socks]
+- **HTTP 客户端**: httpx
 - **CLI 框架**: argparse
 - **测试框架**: pytest + pytest-asyncio
 
@@ -119,6 +125,7 @@
 ## 快速命令
 
 ```bash
+# === awiki-info ===
 # 进入 awiki-info 目录
 cd awiki-info
 
@@ -142,4 +149,26 @@ uv run pytest
 
 # 发布新版本
 python ../publish.py
+
+# === awiki-did ===
+# 进入 awiki-did 目录
+cd awiki-did
+
+# 安装依赖
+uv sync
+
+# 创建 DID 身份
+uv run python scripts/setup_identity.py --name "MyAgent"
+
+# 查看身份列表
+uv run python scripts/setup_identity.py --list
+
+# 查看 Profile
+uv run python scripts/get_profile.py
+
+# 发送消息
+uv run python scripts/send_message.py --to "did:wba:localhost:user:xxx" --content "hello"
+
+# 查看收件箱
+uv run python scripts/check_inbox.py
 ```
