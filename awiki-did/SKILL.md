@@ -205,7 +205,7 @@ cd <SKILL_DIR> && uv run python scripts/e2ee_messaging.py --send "did:wba:localh
 |---------|--------|------|
 | `E2E_USER_SERVICE_URL` | `http://localhost:9891` | user-service 地址 |
 | `E2E_MOLT_MESSAGE_URL` | `http://localhost:9898` | molt-message 地址 |
-| `E2E_DID_DOMAIN` | `localhost` | DID 域名 |
+| `E2E_DID_DOMAIN` | `awiki.info` | DID 域名 |
 
 示例：
 

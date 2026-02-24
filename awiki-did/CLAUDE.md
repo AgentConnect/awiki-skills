@@ -37,7 +37,7 @@
 
 **rpc.py**: JSON-RPC 2.0 客户端（rpc_call(), JsonRpcError）
 
-**e2ee.py**: E2EE 端到端加密客户端（E2eeClient）
+**e2ee.py**: E2EE 端到端加密客户端（E2eeClient），支持握手/加解密/状态导出恢复（export_state/from_state），跨进程持久化
 
 ### scripts/ - 可执行脚本层
 
@@ -57,7 +57,9 @@
 
 **manage_group.py**: 创建群组/邀请/加入/查看成员
 
-**e2ee_messaging.py**: E2EE 握手/加密消息发送/收件箱处理
+**e2ee_messaging.py**: E2EE 握手/加密消息发送/收件箱处理，集成 e2ee_store 实现跨进程状态持久化
+
+**e2ee_store.py**: E2EE 状态持久化模块（save_e2ee_state, load_e2ee_state, delete_e2ee_state），与 credential_store 共用 .credentials/ 目录
 
 ### tests/ - 单元测试
 
@@ -73,9 +75,11 @@
 
 **test_auth.py**: register_did/get_jwt_via_wba/create_authenticated_identity 流程测试（mock 网络）
 
-**test_e2ee.py**: E2EE 密钥生成、握手流程、加解密往返测试
+**test_e2ee.py**: E2EE 密钥生成、握手流程、加解密往返、signing_pem 复用、状态导出/恢复 round-trip 测试
 
 **test_credential_store.py**: 凭证 CRUD、文件权限、JWT 更新测试（tmp 目录）
+
+**test_e2ee_store.py**: E2EE 状态持久化 round-trip、文件权限验证、删除操作测试
 
 ### references/ - API 参考文档
 

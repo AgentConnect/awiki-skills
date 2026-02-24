@@ -57,6 +57,15 @@ def tmp_credentials_dir(tmp_path, monkeypatch):
     return tmp_path / ".credentials"
 
 
+@pytest.fixture()
+def tmp_e2ee_store(tmp_path, monkeypatch):
+    """将 e2ee_store._CREDENTIALS_DIR 替换为临时目录。"""
+    import scripts.e2ee_store as es
+
+    monkeypatch.setattr(es, "_CREDENTIALS_DIR", tmp_path / ".credentials")
+    return tmp_path / ".credentials"
+
+
 def _build_httpx_response(
     status_code: int = 200,
     json_body: dict | None = None,

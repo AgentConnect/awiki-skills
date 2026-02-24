@@ -1,8 +1,8 @@
 """E2EE 端到端加密客户端（封装 ANP e2e_encryption_v2）。
 
 [INPUT]: ANP E2eeSession / E2eeKeyManager / detect_message_type, local_did
-[OUTPUT]: E2eeClient 类，提供握手、加密、解密的高层 API
-[POS]: 封装 ANP 底层 E2EE 协议，为上层应用提供简洁的加解密接口
+[OUTPUT]: E2eeClient 类，提供握手、加密、解密、状态导出/恢复的高层 API
+[POS]: 封装 ANP 底层 E2EE 协议，为上层应用提供简洁的加解密接口；支持跨进程状态持久化
 
 [PROTOCOL]:
 1. 逻辑变更时同步更新此头部
@@ -11,7 +11,9 @@
 
 from __future__ import annotations
 
+import base64
 import logging
+import time
 from typing import Any
 
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -19,6 +21,7 @@ from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
     PrivateFormat,
+    load_pem_private_key,
 )
 
 from anp.e2e_encryption_v2 import (
@@ -40,6 +43,12 @@ def _generate_secp256r1_pem() -> tuple[str, ec.EllipticCurvePrivateKey]:
     return pem_bytes.decode("utf-8"), private_key
 
 
+def _load_secp256r1_pem(pem_str: str) -> tuple[str, ec.EllipticCurvePrivateKey]:
+    """从 PEM 字符串加载 secp256r1 密钥，返回 (pem_str, private_key_obj)。"""
+    private_key = load_pem_private_key(pem_str.encode("utf-8"), password=None)
+    return pem_str, private_key
+
+
 class E2eeClient:
     """E2EE 端到端加密客户端。
 
@@ -52,14 +61,19 @@ class E2eeClient:
     与 DID 身份密钥（secp256k1）分离。构造函数自动生成独立的 secp256r1 签名密钥。
     """
 
-    def __init__(self, local_did: str) -> None:
+    def __init__(self, local_did: str, *, signing_pem: str | None = None) -> None:
         """初始化 E2EE 客户端。
 
         Args:
             local_did: 本地 DID 标识符。
+            signing_pem: 可选的 secp256r1 签名密钥 PEM 字符串。
+                传入时复用该密钥，不传则自动生成新密钥。
         """
         self.local_did = local_did
-        self._signing_pem, self._signing_key = _generate_secp256r1_pem()
+        if signing_pem is not None:
+            self._signing_pem, self._signing_key = _load_secp256r1_pem(signing_pem)
+        else:
+            self._signing_pem, self._signing_key = _generate_secp256r1_pem()
         self._key_manager = E2eeKeyManager()
 
     def initiate_handshake(self, peer_did: str) -> tuple[str, dict[str, Any]]:
@@ -186,6 +200,119 @@ class E2eeClient:
             需要重新握手的 ``(local_did, peer_did)`` 列表。
         """
         return self._key_manager.cleanup_expired()
+
+    # ------------------------------------------------------------------
+    # 状态导出 / 恢复
+    # ------------------------------------------------------------------
+
+    def export_state(self) -> dict[str, Any]:
+        """导出客户端状态（signing_pem + 所有未过期的 ACTIVE 会话）。
+
+        Returns:
+            可 JSON 序列化的 dict，用于持久化。
+        """
+        sessions: list[dict[str, Any]] = []
+        # 遍历 key_manager 内部的 did_pair 索引，收集 ACTIVE 且未过期的会话
+        for session_list in self._key_manager._sessions_by_did_pair.values():
+            for session in session_list:
+                if session.state == SessionState.ACTIVE and not session.is_expired():
+                    exported = self._export_session(session)
+                    if exported is not None:
+                        sessions.append(exported)
+        return {
+            "local_did": self.local_did,
+            "signing_pem": self._signing_pem,
+            "sessions": sessions,
+        }
+
+    @classmethod
+    def from_state(cls, state: dict[str, Any]) -> E2eeClient:
+        """从导出的 dict 恢复完整客户端。
+
+        Args:
+            state: 由 ``export_state()`` 生成的 dict。
+
+        Returns:
+            恢复后的 ``E2eeClient`` 实例（ACTIVE 会话已注册到 key_manager）。
+        """
+        client = cls(state["local_did"], signing_pem=state["signing_pem"])
+        for session_data in state.get("sessions", []):
+            session = cls._restore_session(session_data)
+            if session is not None:
+                client._key_manager.register_session(session)
+        return client
+
+    @staticmethod
+    def _export_session(session: E2eeSession) -> dict[str, Any] | None:
+        """序列化单个 ACTIVE 会话。
+
+        send_key / recv_key 使用 base64 编码。
+        返回 None 表示会话不可导出（非 ACTIVE 或缺少关键数据）。
+        """
+        if session.state != SessionState.ACTIVE:
+            return None
+        send_key = session.send_key
+        recv_key = session.recv_key
+        if send_key is None or recv_key is None:
+            return None
+        return {
+            "session_id": session.session_id,
+            "local_did": session.local_did,
+            "peer_did": session.peer_did,
+            "is_initiator": session._is_initiator,
+            "send_key": base64.b64encode(send_key).decode("ascii"),
+            "recv_key": base64.b64encode(recv_key).decode("ascii"),
+            "secret_key_id": session.secret_key_id,
+            "cipher_suite": session.cipher_suite,
+            "key_expires": session._key_expires,
+            "created_at": session._created_at,
+            "active_at": session._active_at,
+        }
+
+    @staticmethod
+    def _restore_session(data: dict[str, Any]) -> E2eeSession | None:
+        """从 dict 恢复单个 ACTIVE 会话。
+
+        使用 ``object.__new__(E2eeSession)`` 绕过 ``__init__``（避免重新生成密钥），
+        直接设置恢复所需的属性。
+
+        Returns:
+            恢复的 ``E2eeSession``，若已过期则返回 None。
+        """
+        # 跳过已过期的会话
+        active_at = data.get("active_at")
+        key_expires = data.get("key_expires")
+        if active_at is not None and key_expires is not None:
+            if time.time() > active_at + key_expires:
+                return None
+
+        session = object.__new__(E2eeSession)
+        # 公共属性
+        session.local_did = data["local_did"]
+        session.peer_did = data["peer_did"]
+        session.session_id = data["session_id"]
+        session.default_expires = key_expires or 86400
+        # 状态与角色
+        session._state = SessionState.ACTIVE
+        session._is_initiator = data.get("is_initiator")
+        # 加解密密钥
+        session._send_key = base64.b64decode(data["send_key"])
+        session._recv_key = base64.b64decode(data["recv_key"])
+        session._secret_key_id = data["secret_key_id"]
+        session._cipher_suite = data.get("cipher_suite")
+        session._key_expires = key_expires
+        session._created_at = data.get("created_at", time.time())
+        session._active_at = active_at
+        # 握手阶段的属性（ACTIVE 状态不再使用，但需设置以防止 AttributeError）
+        session._did_private_key = None
+        session._did_public_key_hex = ""
+        session._eph_private_key = None
+        session._eph_public_key = None
+        session._eph_public_key_hex = ""
+        session._local_key_share = {}
+        session._local_random = ""
+        session._peer_random = None
+        return session
 
     # ------------------------------------------------------------------
     # 内部处理方法

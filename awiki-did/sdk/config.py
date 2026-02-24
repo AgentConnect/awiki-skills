@@ -30,7 +30,7 @@ class SDKConfig:
         )
     )
     did_domain: str = field(
-        default_factory=lambda: os.environ.get("E2E_DID_DOMAIN", "localhost")
+        default_factory=lambda: os.environ.get("E2E_DID_DOMAIN", "awiki.info")
     )
 
 

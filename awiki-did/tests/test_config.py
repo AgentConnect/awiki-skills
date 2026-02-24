@@ -15,7 +15,7 @@ class TestSDKConfigDefaults:
         assert sdk_config.molt_message_url == "http://localhost:9898"
 
     def test_default_did_domain(self, sdk_config):
-        assert sdk_config.did_domain == "localhost"
+        assert sdk_config.did_domain == "awiki.info"
 
 
 class TestSDKConfigEnvOverride:
