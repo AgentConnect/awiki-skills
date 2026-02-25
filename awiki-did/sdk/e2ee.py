@@ -206,7 +206,7 @@ class E2eeClient:
     # ------------------------------------------------------------------
 
     def export_state(self) -> dict[str, Any]:
-        """导出客户端状态（signing_pem + 所有未过期的 ACTIVE 会话）。
+        """导出客户端状态（signing_pem + ACTIVE 会话 + PENDING 握手会话）。
 
         Returns:
             可 JSON 序列化的 dict，用于持久化。
@@ -219,10 +219,17 @@ class E2eeClient:
                     exported = self._export_session(session)
                     if exported is not None:
                         sessions.append(exported)
+        # 收集 PENDING（握手中）的会话
+        pending_sessions: list[dict[str, Any]] = []
+        for session in self._key_manager._pending_sessions.values():
+            exported = self._export_pending_session(session)
+            if exported is not None:
+                pending_sessions.append(exported)
         return {
             "local_did": self.local_did,
             "signing_pem": self._signing_pem,
             "sessions": sessions,
+            "pending_sessions": pending_sessions,
         }
 
     @classmethod
@@ -240,6 +247,11 @@ class E2eeClient:
             session = cls._restore_session(session_data)
             if session is not None:
                 client._key_manager.register_session(session)
+        # 恢复 PENDING 握手会话
+        for session_data in state.get("pending_sessions", []):
+            session = cls._restore_pending_session(session_data)
+            if session is not None:
+                client._key_manager.register_pending_session(session)
         return client
 
     @staticmethod
@@ -268,6 +280,135 @@ class E2eeClient:
             "created_at": session._created_at,
             "active_at": session._active_at,
         }
+
+    @staticmethod
+    def _export_pending_session(session: E2eeSession) -> dict[str, Any] | None:
+        """序列化单个 PENDING（握手中）会话。
+
+        包含临时 ECDHE 密钥和握手状态，支持跨进程握手恢复。
+        返回 None 表示会话不可导出。
+        """
+        state = session.state
+        if state not in (
+            SessionState.HANDSHAKE_INITIATED,
+            SessionState.HANDSHAKE_COMPLETING,
+        ):
+            return None
+
+        # 检查握手超时（5 分钟）
+        if time.time() - session._created_at > 300:
+            return None
+
+        # 序列化临时 ECDHE 私钥
+        eph_pem = None
+        if session._eph_private_key is not None:
+            eph_pem = session._eph_private_key.private_bytes(
+                Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+            ).decode("utf-8")
+
+        # 序列化 DID 签名私钥
+        did_pem = None
+        if session._did_private_key is not None:
+            did_pem = session._did_private_key.private_bytes(
+                Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+            ).decode("utf-8")
+
+        data: dict[str, Any] = {
+            "session_id": session.session_id,
+            "local_did": session.local_did,
+            "peer_did": session.peer_did,
+            "is_initiator": session._is_initiator,
+            "state": state.value,
+            "eph_private_key_pem": eph_pem,
+            "eph_public_key_hex": session._eph_public_key_hex,
+            "did_private_key_pem": did_pem,
+            "did_public_key_hex": session._did_public_key_hex,
+            "local_key_share": session._local_key_share,
+            "local_random": session._local_random,
+            "peer_random": session._peer_random,
+            "created_at": session._created_at,
+            "default_expires": session.default_expires,
+        }
+
+        # HANDSHAKE_COMPLETING 状态已派生加密密钥
+        if state == SessionState.HANDSHAKE_COMPLETING:
+            send_key = session.send_key
+            recv_key = session.recv_key
+            if send_key is not None:
+                data["send_key"] = base64.b64encode(send_key).decode("ascii")
+            if recv_key is not None:
+                data["recv_key"] = base64.b64encode(recv_key).decode("ascii")
+            data["cipher_suite"] = session._cipher_suite
+            data["key_expires"] = session._key_expires
+
+        return data
+
+    @staticmethod
+    def _restore_pending_session(data: dict[str, Any]) -> E2eeSession | None:
+        """从 dict 恢复单个 PENDING 握手会话。
+
+        Returns:
+            恢复的 ``E2eeSession``，若已超时则返回 None。
+        """
+        created_at = data.get("created_at", 0)
+        if time.time() - created_at > 300:
+            return None
+
+        state_str = data.get("state", "")
+        try:
+            state = SessionState(state_str)
+        except ValueError:
+            return None
+
+        session = object.__new__(E2eeSession)
+        session.local_did = data["local_did"]
+        session.peer_did = data["peer_did"]
+        session.session_id = data["session_id"]
+        session.default_expires = data.get("default_expires", 86400)
+        session._state = state
+        session._is_initiator = data.get("is_initiator")
+        session._created_at = created_at
+        session._active_at = None
+        session._local_random = data.get("local_random", "")
+        session._peer_random = data.get("peer_random")
+        session._local_key_share = data.get("local_key_share", {})
+        session._did_public_key_hex = data.get("did_public_key_hex", "")
+
+        # 恢复 DID 签名密钥
+        did_pem = data.get("did_private_key_pem")
+        if did_pem:
+            session._did_private_key = load_pem_private_key(
+                did_pem.encode("utf-8"), password=None
+            )
+        else:
+            session._did_private_key = None
+
+        # 恢复临时 ECDHE 密钥
+        eph_pem = data.get("eph_private_key_pem")
+        if eph_pem:
+            session._eph_private_key = load_pem_private_key(
+                eph_pem.encode("utf-8"), password=None
+            )
+            session._eph_public_key = session._eph_private_key.public_key()
+        else:
+            session._eph_private_key = None
+            session._eph_public_key = None
+        session._eph_public_key_hex = data.get("eph_public_key_hex", "")
+
+        # 恢复加密密钥（HANDSHAKE_COMPLETING 状态）
+        if "send_key" in data:
+            session._send_key = base64.b64decode(data["send_key"])
+        else:
+            session._send_key = None
+        if "recv_key" in data:
+            session._recv_key = base64.b64decode(data["recv_key"])
+        else:
+            session._recv_key = None
+        session._secret_key_id = data.get("secret_key_id")
+        session._cipher_suite = data.get("cipher_suite")
+        session._key_expires = data.get("key_expires")
+
+        return session
 
     @staticmethod
     def _restore_session(data: dict[str, Any]) -> E2eeSession | None:

@@ -103,14 +103,13 @@
 ## 技术栈
 
 - **Python**: 3.10+
-- **包管理**: uv
+- **包管理**: pip
 - **MCP 框架**: MCP SDK 1.0+ (官方 Model Context Protocol 实现)
-- **DID/E2EE**: ANP >= 0.5.3 (DID WBA 认证、E2EE 加密)
+- **DID/E2EE**: ANP >= 0.5.6 (DID WBA 认证、E2EE 加密)
 - **网络传输**: streamable-http (HTTP streaming 协议)
 - **异步支持**: asyncio
 - **HTTP 客户端**: httpx
 - **CLI 框架**: argparse
-- **测试框架**: pytest + pytest-asyncio
 
 ## 编程规范
 
@@ -155,20 +154,20 @@ python ../publish.py
 cd awiki-did
 
 # 安装依赖
-uv sync
+pip install -r requirements.txt
 
 # 创建 DID 身份
-uv run python scripts/setup_identity.py --name "MyAgent"
+python scripts/setup_identity.py --name "MyAgent"
 
 # 查看身份列表
-uv run python scripts/setup_identity.py --list
+python scripts/setup_identity.py --list
 
 # 查看 Profile
-uv run python scripts/get_profile.py
+python scripts/get_profile.py
 
 # 发送消息
-uv run python scripts/send_message.py --to "did:wba:localhost:user:xxx" --content "hello"
+python scripts/send_message.py --to "did:wba:localhost:user:xxx" --content "hello"
 
 # 查看收件箱
-uv run python scripts/check_inbox.py
+python scripts/check_inbox.py
 ```

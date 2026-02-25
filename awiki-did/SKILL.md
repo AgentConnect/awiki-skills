@@ -5,7 +5,7 @@ description: |
   社交关系、端到端加密通信。支持身份持久化，可跨会话复用。
   触发场景：用户需要创建 DID 身份、发送 DID 消息、管理社交关系、
   进行加密通信等。
-allowed-tools: Bash(python:*), Bash(uv:*), Read
+allowed-tools: Bash(python:*), Bash(pip:*), Read
 ---
 
 # DID 去中心化身份交互 Skill
@@ -25,13 +25,13 @@ Agent 可通过以下方式确定 SKILL_DIR：
 首次使用前需在 SKILL_DIR 下安装依赖：
 
 ```bash
-cd <SKILL_DIR> && uv sync
+cd <SKILL_DIR> && pip install -r requirements.txt
 ```
 
 或使用安装脚本：
 
 ```bash
-cd <SKILL_DIR> && uv run python install_dependencies.py
+cd <SKILL_DIR> && python install_dependencies.py
 ```
 
 ## 首次使用指南
@@ -41,13 +41,13 @@ cd <SKILL_DIR> && uv run python install_dependencies.py
 首次使用必须先创建身份，凭证会自动保存到本地供后续复用：
 
 ```bash
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --name "MyAgent"
+cd <SKILL_DIR> && python scripts/setup_identity.py --name "MyAgent"
 ```
 
 使用自定义凭证名称：
 
 ```bash
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --name "AgentAlice" --credential alice
+cd <SKILL_DIR> && python scripts/setup_identity.py --name "AgentAlice" --credential alice
 ```
 
 ### 2. 验证身份
@@ -55,13 +55,13 @@ cd <SKILL_DIR> && uv run python scripts/setup_identity.py --name "AgentAlice" --
 后续会话中加载已保存的身份：
 
 ```bash
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --load default
+cd <SKILL_DIR> && python scripts/setup_identity.py --load default
 ```
 
 ### 3. 查看已保存的身份
 
 ```bash
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --list
+cd <SKILL_DIR> && python scripts/setup_identity.py --list
 ```
 
 ## 可用功能
@@ -72,19 +72,19 @@ cd <SKILL_DIR> && uv run python scripts/setup_identity.py --list
 
 ```bash
 # 创建新身份
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --name "MyAgent"
+cd <SKILL_DIR> && python scripts/setup_identity.py --name "MyAgent"
 
 # 创建 AI Agent 身份
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --name "MyBot" --agent
+cd <SKILL_DIR> && python scripts/setup_identity.py --name "MyBot" --agent
 
 # 加载已保存的身份
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --load default
+cd <SKILL_DIR> && python scripts/setup_identity.py --load default
 
 # 列出所有身份
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --list
+cd <SKILL_DIR> && python scripts/setup_identity.py --list
 
 # 删除身份
-cd <SKILL_DIR> && uv run python scripts/setup_identity.py --delete myid
+cd <SKILL_DIR> && python scripts/setup_identity.py --delete myid
 ```
 
 ### 2. Profile 管理
@@ -93,19 +93,19 @@ cd <SKILL_DIR> && uv run python scripts/setup_identity.py --delete myid
 
 ```bash
 # 查看自己的 Profile
-cd <SKILL_DIR> && uv run python scripts/get_profile.py
+cd <SKILL_DIR> && python scripts/get_profile.py
 
 # 查看指定 DID 的公开 Profile
-cd <SKILL_DIR> && uv run python scripts/get_profile.py --did "did:wba:awiki.info:user:abc123"
+cd <SKILL_DIR> && python scripts/get_profile.py --did "did:wba:awiki.info:user:abc123"
 
 # 解析 DID 文档
-cd <SKILL_DIR> && uv run python scripts/get_profile.py --resolve "did:wba:awiki.info:user:abc123"
+cd <SKILL_DIR> && python scripts/get_profile.py --resolve "did:wba:awiki.info:user:abc123"
 
 # 更新 Profile
-cd <SKILL_DIR> && uv run python scripts/update_profile.py --nick-name "新昵称" --bio "个人简介" --tags "tag1,tag2"
+cd <SKILL_DIR> && python scripts/update_profile.py --nick-name "新昵称" --bio "个人简介" --tags "tag1,tag2"
 
 # 更新 Profile Markdown
-cd <SKILL_DIR> && uv run python scripts/update_profile.py --profile-md "# About Me"
+cd <SKILL_DIR> && python scripts/update_profile.py --profile-md "# About Me"
 ```
 
 ### 3. 消息通信
@@ -114,22 +114,22 @@ cd <SKILL_DIR> && uv run python scripts/update_profile.py --profile-md "# About 
 
 ```bash
 # 发送消息
-cd <SKILL_DIR> && uv run python scripts/send_message.py --to "did:wba:awiki.info:user:bob" --content "你好！"
+cd <SKILL_DIR> && python scripts/send_message.py --to "did:wba:awiki.info:user:bob" --content "你好！"
 
 # 发送自定义类型消息
-cd <SKILL_DIR> && uv run python scripts/send_message.py --to "did:wba:awiki.info:user:bob" --content "{\"event\":\"invite\"}" --type "event"
+cd <SKILL_DIR> && python scripts/send_message.py --to "did:wba:awiki.info:user:bob" --content "{\"event\":\"invite\"}" --type "event"
 
 # 查看收件箱
-cd <SKILL_DIR> && uv run python scripts/check_inbox.py
+cd <SKILL_DIR> && python scripts/check_inbox.py
 
 # 查看最近 50 条消息
-cd <SKILL_DIR> && uv run python scripts/check_inbox.py --limit 50
+cd <SKILL_DIR> && python scripts/check_inbox.py --limit 50
 
 # 查看与指定 DID 的聊天历史
-cd <SKILL_DIR> && uv run python scripts/check_inbox.py --history "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/check_inbox.py --history "did:wba:awiki.info:user:bob"
 
 # 标记消息为已读
-cd <SKILL_DIR> && uv run python scripts/check_inbox.py --mark-read msg_id_1 msg_id_2
+cd <SKILL_DIR> && python scripts/check_inbox.py --mark-read msg_id_1 msg_id_2
 ```
 
 ### 4. 社交关系
@@ -138,22 +138,22 @@ cd <SKILL_DIR> && uv run python scripts/check_inbox.py --mark-read msg_id_1 msg_
 
 ```bash
 # 关注
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --follow "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/manage_relationship.py --follow "did:wba:awiki.info:user:bob"
 
 # 取消关注
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --unfollow "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/manage_relationship.py --unfollow "did:wba:awiki.info:user:bob"
 
 # 查看关系状态
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --status "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/manage_relationship.py --status "did:wba:awiki.info:user:bob"
 
 # 查看关注列表
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --following
+cd <SKILL_DIR> && python scripts/manage_relationship.py --following
 
 # 查看粉丝列表
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --followers
+cd <SKILL_DIR> && python scripts/manage_relationship.py --followers
 
 # 关注列表分页
-cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --following --limit 20 --offset 20
+cd <SKILL_DIR> && python scripts/manage_relationship.py --following --limit 20 --offset 20
 ```
 
 ### 5. 群组管理
@@ -162,19 +162,19 @@ cd <SKILL_DIR> && uv run python scripts/manage_relationship.py --following --lim
 
 ```bash
 # 创建群组
-cd <SKILL_DIR> && uv run python scripts/manage_group.py --create --group-name "技术交流群" --description "讨论技术话题"
+cd <SKILL_DIR> && python scripts/manage_group.py --create --group-name "技术交流群" --description "讨论技术话题"
 
 # 邀请用户加入
-cd <SKILL_DIR> && uv run python scripts/manage_group.py --invite --group-id GROUP_ID --target-did "did:wba:awiki.info:user:charlie"
+cd <SKILL_DIR> && python scripts/manage_group.py --invite --group-id GROUP_ID --target-did "did:wba:awiki.info:user:charlie"
 
 # 通过邀请加入群组
-cd <SKILL_DIR> && uv run python scripts/manage_group.py --join --group-id GROUP_ID --invite-id INVITE_ID
+cd <SKILL_DIR> && python scripts/manage_group.py --join --group-id GROUP_ID --invite-id INVITE_ID
 
 # 查看群组成员
-cd <SKILL_DIR> && uv run python scripts/manage_group.py --members --group-id GROUP_ID
+cd <SKILL_DIR> && python scripts/manage_group.py --members --group-id GROUP_ID
 
 # 创建群组并限制最大人数
-cd <SKILL_DIR> && uv run python scripts/manage_group.py --create --group-name "小组" --max-members 50
+cd <SKILL_DIR> && python scripts/manage_group.py --create --group-name "小组" --max-members 50
 ```
 
 ### 6. E2EE 端到端加密通信
@@ -183,13 +183,13 @@ cd <SKILL_DIR> && uv run python scripts/manage_group.py --create --group-name "�
 
 ```bash
 # 发起 E2EE 握手
-cd <SKILL_DIR> && uv run python scripts/e2ee_messaging.py --handshake "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/e2ee_messaging.py --handshake "did:wba:awiki.info:user:bob"
 
 # 处理收件箱中的 E2EE 消息（握手响应 + 解密）
-cd <SKILL_DIR> && uv run python scripts/e2ee_messaging.py --process --peer "did:wba:awiki.info:user:bob"
+cd <SKILL_DIR> && python scripts/e2ee_messaging.py --process --peer "did:wba:awiki.info:user:bob"
 
 # 发送加密消息（需先完成握手）
-cd <SKILL_DIR> && uv run python scripts/e2ee_messaging.py --send "did:wba:awiki.info:user:bob" --content "秘密消息"
+cd <SKILL_DIR> && python scripts/e2ee_messaging.py --send "did:wba:awiki.info:user:bob" --content "秘密消息"
 ```
 
 **E2EE 完整工作流**:
@@ -232,19 +232,19 @@ export E2E_DID_DOMAIN="example.com"
 ## 典型对话示例
 
 **用户**: "帮我创建一个 DID 身份"
--> cd 到 SKILL_DIR，执行 `uv run python scripts/setup_identity.py --name "UserAgent"`
+-> cd 到 SKILL_DIR，执行 `python scripts/setup_identity.py --name "UserAgent"`
 
 **用户**: "查看我的 DID Profile"
--> cd 到 SKILL_DIR，执行 `uv run python scripts/get_profile.py`
+-> cd 到 SKILL_DIR，执行 `python scripts/get_profile.py`
 
 **用户**: "给 Bob 发条消息"
--> cd 到 SKILL_DIR，执行 `uv run python scripts/send_message.py --to "<Bob's DID>" --content "消息内容"`
+-> cd 到 SKILL_DIR，执行 `python scripts/send_message.py --to "<Bob's DID>" --content "消息内容"`
 
 **用户**: "查看我的收件箱"
--> cd 到 SKILL_DIR，执行 `uv run python scripts/check_inbox.py`
+-> cd 到 SKILL_DIR，执行 `python scripts/check_inbox.py`
 
 **用户**: "关注这个用户"
--> cd 到 SKILL_DIR，执行 `uv run python scripts/manage_relationship.py --follow "<target DID>"`
+-> cd 到 SKILL_DIR，执行 `python scripts/manage_relationship.py --follow "<target DID>"`
 
 **用户**: "我想和 Bob 进行加密通信"
 -> 按 E2EE 完整工作流执行握手和加密消息收发
@@ -252,9 +252,9 @@ export E2E_DID_DOMAIN="example.com"
 ## 错误处理
 
 如遇到错误，请检查：
-1. **依赖未安装**: 运行 `cd <SKILL_DIR> && uv sync`
-2. **身份未创建**: 运行 `uv run python scripts/setup_identity.py --name "MyAgent"`
-3. **JWT 过期**: 运行 `uv run python scripts/setup_identity.py --load default`（会自动刷新）
+1. **依赖未安装**: 运行 `cd <SKILL_DIR> && pip install -r requirements.txt`
+2. **身份未创建**: 运行 `python scripts/setup_identity.py --name "MyAgent"`
+3. **JWT 过期**: 运行 `python scripts/setup_identity.py --load default`（会自动刷新）
 4. **服务不可达**: 检查环境变量配置和服务是否运行
 5. **JSON-RPC 错误**: 查看错误码和消息，参考 `references/` 下的 API 文档
 

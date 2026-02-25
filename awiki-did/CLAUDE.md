@@ -7,7 +7,7 @@
    - **输入**: 用户指令（创建身份、发送消息、管理关系等）、环境变量配置
    - **输出**: DID 操作结果（身份信息、消息、关系状态等）、本地凭证文件
 3. **约束**:
-   - 必须使用 ANP >= 0.5.3 作为 DID 和 E2EE 底层实现
+   - 必须使用 ANP >= 0.5.6 作为 DID 和 E2EE 底层实现
    - DID 身份使用 secp256k1 密钥，E2EE 使用 secp256r1 密钥
    - 私钥文件权限必须设为 600
    - 所有网络请求必须异步（async/await）
@@ -17,9 +17,11 @@
 
 **SKILL.md**: Skill 配置文档（触发场景、使用说明、工具权限、路径约定、CLI 示例）
 
-**pyproject.toml**: 项目依赖配置（anp>=0.5.3、httpx>=0.28.0）
+**pyproject.toml**: 项目依赖配置（anp>=0.5.6、httpx>=0.28.0）
 
-**install_dependencies.py**: 多选安装脚本（支持 uv/pip 两种方式）
+**requirements.txt**: 运行时依赖清单（pip install -r requirements.txt）
+
+**install_dependencies.py**: 依赖安装脚本（pip 安装）
 
 **.gitignore**: 忽略 .credentials/、__pycache__ 等
 
@@ -60,26 +62,6 @@
 **e2ee_messaging.py**: E2EE 握手/加密消息发送/收件箱处理，集成 e2ee_store 实现跨进程状态持久化
 
 **e2ee_store.py**: E2EE 状态持久化模块（save_e2ee_state, load_e2ee_state, delete_e2ee_state），与 credential_store 共用 .credentials/ 目录
-
-### tests/ - 单元测试
-
-**conftest.py**: 共享 fixtures（sdk_config、sample_did_identity、tmp_credentials_dir、mock_httpx_response）
-
-**test_config.py**: SDKConfig 默认值、环境变量覆盖、frozen 不可变性测试
-
-**test_rpc.py**: JSON-RPC 2.0 调用成功/错误/payload 格式验证
-
-**test_identity.py**: DIDIdentity 属性、load_private_key、create_identity（mock ANP）测试
-
-**test_client.py**: httpx 客户端工厂 base_url/timeout/trust_env 测试
-
-**test_auth.py**: register_did/get_jwt_via_wba/create_authenticated_identity 流程测试（mock 网络）
-
-**test_e2ee.py**: E2EE 密钥生成、握手流程、加解密往返、signing_pem 复用、状态导出/恢复 round-trip 测试
-
-**test_credential_store.py**: 凭证 CRUD、文件权限、JWT 更新测试（tmp 目录）
-
-**test_e2ee_store.py**: E2EE 状态持久化 round-trip、文件权限验证、删除操作测试
 
 ### references/ - API 参考文档
 
