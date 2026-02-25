@@ -9,7 +9,7 @@ class TestCreateUserServiceClient:
 
     def test_base_url(self, sdk_config):
         client = create_user_service_client(sdk_config)
-        assert str(client.base_url) == "http://localhost:9891"
+        assert str(client.base_url) == "https://awiki.info"
 
     def test_timeout(self, sdk_config):
         client = create_user_service_client(sdk_config)
@@ -25,7 +25,7 @@ class TestCreateMoltMessageClient:
 
     def test_base_url(self, sdk_config):
         client = create_molt_message_client(sdk_config)
-        assert str(client.base_url) == "http://localhost:9898"
+        assert str(client.base_url) == "https://awiki.info"
 
     def test_custom_config(self, monkeypatch):
         monkeypatch.delenv("E2E_USER_SERVICE_URL", raising=False)

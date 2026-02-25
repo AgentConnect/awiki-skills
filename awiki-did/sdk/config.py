@@ -21,12 +21,12 @@ class SDKConfig:
 
     user_service_url: str = field(
         default_factory=lambda: os.environ.get(
-            "E2E_USER_SERVICE_URL", "http://localhost:9891"
+            "E2E_USER_SERVICE_URL", "https://awiki.info"
         )
     )
     molt_message_url: str = field(
         default_factory=lambda: os.environ.get(
-            "E2E_MOLT_MESSAGE_URL", "http://localhost:9898"
+            "E2E_MOLT_MESSAGE_URL", "https://awiki.info"
         )
     )
     did_domain: str = field(

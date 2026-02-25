@@ -9,10 +9,10 @@ class TestSDKConfigDefaults:
     """测试默认值（无环境变量时）。"""
 
     def test_default_user_service_url(self, sdk_config):
-        assert sdk_config.user_service_url == "http://localhost:9891"
+        assert sdk_config.user_service_url == "https://awiki.info"
 
     def test_default_molt_message_url(self, sdk_config):
-        assert sdk_config.molt_message_url == "http://localhost:9898"
+        assert sdk_config.molt_message_url == "https://awiki.info"
 
     def test_default_did_domain(self, sdk_config):
         assert sdk_config.did_domain == "awiki.info"
